@@ -61,8 +61,8 @@ const Component = ({
       await new Promise<void>((resolve) => {
         render(
           <Mounter resolve={resolve}>
-            <svg width={width} height={height}>
-              <foreignObject width="100%" height="100%">
+            <svg width={propWidth} height={propHeight}>
+              <foreignObject width={propWidth} height={propHeight}>
                 {children}
               </foreignObject>
             </svg>

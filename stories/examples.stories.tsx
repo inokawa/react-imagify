@@ -31,17 +31,24 @@ export const HelloWorld = () => {
 
 export const WithState = () => {
   const [count, setCount] = useState(0);
+  const [text, setText] = useState("textarea");
   return (
     <div>
-      <Imagify width={200} height={100}>
-        <div style={{ background: count % 2 === 0 ? "pink" : "skyblue" }}>
-          {count}
+      <Imagify width={200} height={400}>
+        <div>
+          <div style={{ background: count % 2 === 0 ? "pink" : "skyblue" }}>
+            {count}
+          </div>
+          <div style={{ wordBreak: "break-all", whiteSpace: "pre-wrap" }}>
+            {text}
+          </div>
         </div>
       </Imagify>
       <div>
         <button onClick={() => setCount((p) => p + 1)}>
           update count: {count}
         </button>
+        <textarea value={text} onChange={(e) => setText(e.target.value)} />
       </div>
     </div>
   );
