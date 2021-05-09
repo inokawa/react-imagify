@@ -8,7 +8,7 @@ export default {
 export const HelloWorld = () => {
   return (
     <div>
-      <Imagify width={400} height={300}>
+      <Imagify width={400} height={100}>
         <div style={{ fontSize: "40px" }}>
           <em>I</em> like{" "}
           <span style={{ color: "white", textShadow: "0 0 2px blue" }}>
@@ -16,6 +16,15 @@ export const HelloWorld = () => {
           </span>
         </div>
       </Imagify>
+      <div style={{ fontSize: "40px" }}>
+        <em>I</em> like{" "}
+        <span style={{ color: "white", textShadow: "0 0 2px blue" }}>
+          cheese
+        </span>
+      </div>
+    </div>
+  );
+};
     </div>
   );
 };
