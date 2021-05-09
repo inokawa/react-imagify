@@ -19,3 +19,21 @@ export const HelloWorld = () => {
     </div>
   );
 };
+
+export const WithState = () => {
+  const [count, setCount] = useState(0);
+  return (
+    <div>
+      <Imagify width={200} height={100}>
+        <div style={{ background: count % 2 === 0 ? "pink" : "skyblue" }}>
+          {count}
+        </div>
+      </Imagify>
+      <div>
+        <button onClick={() => setCount((p) => p + 1)}>
+          update count: {count}
+        </button>
+      </div>
+    </div>
+  );
+};
