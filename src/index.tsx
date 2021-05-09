@@ -9,6 +9,9 @@ import React, {
 } from "react";
 import { render } from "react-dom";
 
+const INLINE_BASE64 = /^data:image\/.*;base64,/i;
+const isInlineBase64Image = (src: string): boolean => INLINE_BASE64.test(src);
+
 export type ImagifyProps = JSX.IntrinsicElements["canvas"] & {
   type?: "canvas"; // | "svg";
 };
@@ -70,6 +73,26 @@ const Component = ({
           svgRef.current
         );
       });
+      await Promise.all(
+        Array.from(svgRef.current.querySelectorAll("img")).map(async (img) => {
+          if (isInlineBase64Image(img.src)) return img;
+          return new Promise<string>((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.onload = () => {
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                img.src = reader.result as string;
+                resolve(reader.result as string);
+              };
+              reader.readAsDataURL(xhr.response);
+            };
+            xhr.open("GET", img.src);
+            xhr.responseType = "blob";
+            xhr.send();
+          });
+        })
+      );
+
       const svgStr = new XMLSerializer().serializeToString(
         svgRef.current.children[0]
       );

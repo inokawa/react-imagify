@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Imagify } from "../src";
+import Octocat from "./Octocat.png";
 
 export default {
   title: "examples",
@@ -25,6 +26,13 @@ export const HelloWorld = () => {
     </div>
   );
 };
+
+export const Image = () => {
+  return (
+    <div>
+      <Imagify width={400} height={300}>
+        <img src={Octocat} width={400} />
+      </Imagify>
     </div>
   );
 };
