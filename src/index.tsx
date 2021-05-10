@@ -29,6 +29,21 @@ const Mounter = ({
   return <>{children}</>;
 };
 
+const nodeToUrl = async (node: HTMLElement) => {
+  const svgStr = new XMLSerializer().serializeToString(node);
+  return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgStr);
+};
+
+const genImage = (svgUrl: string, width: number, height: number) => {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const img = new Image(width, height);
+    img.src = svgUrl;
+    img.onload = (_) => {
+      resolve(img);
+    };
+  });
+};
+
 const Component = ({
   type = "canvas",
   width: propWidth,
@@ -93,20 +108,13 @@ const Component = ({
         })
       );
 
-      const svgStr = new XMLSerializer().serializeToString(
-        svgRef.current.children[0]
-      );
-      const svgUrl =
-        "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgStr);
+      const svgUrl = await nodeToUrl(svgRef.current.children[0] as HTMLElement);
+      const img = await genImage(svgUrl, width, height);
 
-      const img = new Image(width, height);
-      img.src = svgUrl;
-      img.onload = (_) => {
-        const ctx = canvasRef.current?.getContext("2d");
-        if (!ctx) return;
-        ctx.clearRect(0, 0, width, height);
-        ctx?.drawImage(img, 0, 0);
-      };
+      const ctx = canvasRef.current?.getContext("2d");
+      if (!ctx) return;
+      ctx.clearRect(0, 0, width, height);
+      ctx?.drawImage(img, 0, 0);
     })();
   }, [children]);
 
