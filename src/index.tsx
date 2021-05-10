@@ -34,13 +34,13 @@ const nodeToUrl = async (node: HTMLElement) => {
   return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgStr);
 };
 
-const genImage = (svgUrl: string, width: number, height: number) => {
+const genImage = (url: string, width: number, height: number) => {
   return new Promise<HTMLImageElement>((resolve, reject) => {
     const img = new Image(width, height);
-    img.src = svgUrl;
     img.onload = (_) => {
       resolve(img);
     };
+    img.src = url;
   });
 };
 
@@ -109,7 +109,7 @@ const Component = ({
       );
 
       const svgUrl = await nodeToUrl(svgRef.current.children[0] as HTMLElement);
-      const img = await genImage(svgUrl, width, height);
+      const img = await genImage(svgUrl, Number(propWidth), Number(propHeight));
 
       const ctx = canvasRef.current?.getContext("2d");
       if (!ctx) return;
