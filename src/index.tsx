@@ -116,7 +116,7 @@ const Component = ({
       ctx.clearRect(0, 0, width, height);
       ctx?.drawImage(img, 0, 0);
     })();
-  }, [children]);
+  }, [children, propWidth, propHeight]);
 
   return (
     <canvas
