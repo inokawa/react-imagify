@@ -37,8 +37,9 @@ function mergeRefs<T extends any>(
       if (!ref || !value) return;
       ref.current = value;
     });
-  }, refs) as React.RefCallback<T>;
+  }, refs);
 }
+
 const nodeToUrl = async (node: HTMLElement) => {
   const svgStr = new XMLSerializer().serializeToString(node);
   return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgStr);
