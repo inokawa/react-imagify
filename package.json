@@ -1,7 +1,7 @@
 {
   "name": "react-imagify",
   "version": "0.0.0",
-  "description": "",
+  "description": "A small React component to render HTML as Canvas.",
   "main": "lib/index.js",
   "module": "lib/index.mjs",
   "types": "lib/index.d.ts",
@@ -35,6 +35,11 @@
     "type": "git",
     "url": "git+https://github.com/inokawa/react-imagify.git"
   },
+  "keywords": [
+    "react",
+    "canvas",
+    "webgl"
+  ],
   "author": "inokawa <stratoooo-taster@yahoo.co.jp> (https://github.com/inokawa/)",
   "license": "MIT",
   "bugs": {
