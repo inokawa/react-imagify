@@ -29,6 +29,19 @@ const Mounter = ({
   return <>{children}</>;
 };
 
+function mergeRefs<T extends any>(
+  ...refs: React.MutableRefObject<T>[]
+): React.RefCallback<T> {
+  return useCallback(
+    (value) => {
+      refs.forEach((ref) => {
+        if (!ref || !value) return;
+        ref.current = value;
+      });
+    },
+    refs.filter((r) => !!r)
+  ) as React.RefCallback<T>;
+}
 const nodeToUrl = async (node: HTMLElement) => {
   const svgStr = new XMLSerializer().serializeToString(node);
   return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgStr);
@@ -44,89 +57,102 @@ const genImage = (url: string, width: number, height: number) => {
   });
 };
 
-const Component = ({
-  type = "canvas",
-  width: propWidth,
-  height: propHeight,
-  style: propStyle,
-  children,
-  ...props
-}: ImagifyProps) => {
-  const svgRef = useRef(document.createElement("div"));
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+const Component = forwardRef<HTMLCanvasElement, ImagifyProps>(
+  (
+    {
+      type = "canvas",
+      width: propWidth,
+      height: propHeight,
+      style: propStyle,
+      children,
+      ...props
+    },
+    ref
+  ) => {
+    const svgRef = useRef(document.createElement("div"));
+    const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const dpr = window.devicePixelRatio ?? 1;
-  const width = Number(propWidth ?? 0) * dpr;
-  const height = Number(propHeight ?? 0) * dpr;
+    const dpr = window.devicePixelRatio ?? 1;
+    const width = Number(propWidth ?? 0) * dpr;
+    const height = Number(propHeight ?? 0) * dpr;
 
-  const style = useMemo<React.CSSProperties>(
-    () => ({
-      ...propStyle,
-      width: String(width / dpr) + "px",
-      height: String(height / dpr) + "px",
-    }),
-    [propStyle, width, height]
-  );
+    const style = useMemo<React.CSSProperties>(
+      () => ({
+        ...propStyle,
+        width: String(width / dpr) + "px",
+        height: String(height / dpr) + "px",
+      }),
+      [propStyle, width, height]
+    );
 
-  useLayoutEffect(() => {
-    const ctx = canvasRef.current?.getContext("2d");
-    if (!ctx) return;
-    ctx.scale(dpr, dpr);
-  }, []);
-
-  useEffect(() => {
-    (async () => {
-      await new Promise<void>((resolve) => {
-        render(
-          <Mounter resolve={resolve}>
-            <svg width={propWidth} height={propHeight}>
-              <foreignObject width={propWidth} height={propHeight}>
-                {children}
-              </foreignObject>
-            </svg>
-          </Mounter>,
-          svgRef.current
-        );
-      });
-      await Promise.all(
-        Array.from(svgRef.current.querySelectorAll("img")).map(async (img) => {
-          if (isInlineBase64Image(img.src)) return img;
-          return new Promise<string>((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-            xhr.onload = () => {
-              const reader = new FileReader();
-              reader.onloadend = () => {
-                img.src = reader.result as string;
-                resolve(reader.result as string);
-              };
-              reader.readAsDataURL(xhr.response);
-            };
-            xhr.open("GET", img.src);
-            xhr.responseType = "blob";
-            xhr.send();
-          });
-        })
-      );
-
-      const svgUrl = await nodeToUrl(svgRef.current.children[0] as HTMLElement);
-      const img = await genImage(svgUrl, Number(propWidth), Number(propHeight));
-
+    useLayoutEffect(() => {
       const ctx = canvasRef.current?.getContext("2d");
       if (!ctx) return;
-      ctx.clearRect(0, 0, width, height);
-      ctx?.drawImage(img, 0, 0);
-    })();
-  }, [children, propWidth, propHeight]);
+      ctx.scale(dpr, dpr);
+    }, []);
 
-  return (
-    <canvas
-      {...props}
-      ref={canvasRef}
-      width={width}
-      height={height}
-      style={style}
-    />
-  );
-};
+    useEffect(() => {
+      (async () => {
+        await new Promise<void>((resolve) => {
+          render(
+            <Mounter resolve={resolve}>
+              <svg width={propWidth} height={propHeight}>
+                <foreignObject width={propWidth} height={propHeight}>
+                  {children}
+                </foreignObject>
+              </svg>
+            </Mounter>,
+            svgRef.current
+          );
+        });
+        await Promise.all(
+          Array.from(svgRef.current.querySelectorAll("img")).map(
+            async (img) => {
+              if (isInlineBase64Image(img.src)) return img;
+              return new Promise<string>((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.onload = () => {
+                  const reader = new FileReader();
+                  reader.onloadend = () => {
+                    img.src = reader.result as string;
+                    resolve(reader.result as string);
+                  };
+                  reader.readAsDataURL(xhr.response);
+                };
+                xhr.open("GET", img.src);
+                xhr.responseType = "blob";
+                xhr.send();
+              });
+            }
+          )
+        );
 
-export const Imagify = memo(Component);
+        const svgUrl = await nodeToUrl(
+          svgRef.current.children[0] as HTMLElement
+        );
+        const img = await genImage(
+          svgUrl,
+          Number(propWidth),
+          Number(propHeight)
+        );
+
+        const ctx = canvasRef.current?.getContext("2d");
+        if (!ctx) return;
+        ctx.clearRect(0, 0, width, height);
+        ctx?.drawImage(img, 0, 0);
+      })();
+    }, [children, propWidth, propHeight]);
+
+    return (
+      <canvas
+        {...props}
+        ref={mergeRefs(ref as React.RefObject<HTMLCanvasElement>, canvasRef)}
+        width={width}
+        height={height}
+        style={style}
+      />
+    );
+  }
+);
+
+export const Imagify = memo(Component) as typeof Component;
