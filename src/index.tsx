@@ -58,9 +58,9 @@ const Component = forwardRef<HTMLCanvasElement, ImagifyProps>(
   (
     {
       type = "canvas",
-      width: propWidth,
-      height: propHeight,
-      style: propStyle,
+      width: widthProp,
+      height: heightProp,
+      style: styleProp,
       children,
       ...props
     },
@@ -70,16 +70,16 @@ const Component = forwardRef<HTMLCanvasElement, ImagifyProps>(
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     const dpr = window.devicePixelRatio ?? 1;
-    const width = Number(propWidth ?? 0) * dpr;
-    const height = Number(propHeight ?? 0) * dpr;
+    const width = Number(widthProp ?? 0) * dpr;
+    const height = Number(heightProp ?? 0) * dpr;
 
     const style = useMemo<React.CSSProperties>(
       () => ({
-        ...propStyle,
+        ...styleProp,
         width: String(width / dpr) + "px",
         height: String(height / dpr) + "px",
       }),
-      [propStyle, width, height]
+      [styleProp, width, height]
     );
 
     useLayoutEffect(() => {
@@ -93,8 +93,8 @@ const Component = forwardRef<HTMLCanvasElement, ImagifyProps>(
         await new Promise<void>((resolve) => {
           render(
             <Mounter resolve={resolve}>
-              <svg width={propWidth} height={propHeight}>
-                <foreignObject width={propWidth} height={propHeight}>
+              <svg width={widthProp} height={heightProp}>
+                <foreignObject width={widthProp} height={heightProp}>
                   {children}
                 </foreignObject>
               </svg>
@@ -129,8 +129,8 @@ const Component = forwardRef<HTMLCanvasElement, ImagifyProps>(
         );
         const img = await genImage(
           svgUrl,
-          Number(propWidth),
-          Number(propHeight)
+          Number(widthProp),
+          Number(heightProp)
         );
 
         const ctx = canvasRef.current?.getContext("2d");
@@ -138,7 +138,7 @@ const Component = forwardRef<HTMLCanvasElement, ImagifyProps>(
         ctx.clearRect(0, 0, width, height);
         ctx?.drawImage(img, 0, 0);
       })();
-    }, [children, propWidth, propHeight]);
+    }, [children, widthProp, heightProp]);
 
     return (
       <canvas
