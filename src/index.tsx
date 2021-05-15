@@ -32,15 +32,12 @@ const Mounter = ({
 function mergeRefs<T extends any>(
   ...refs: React.MutableRefObject<T>[]
 ): React.RefCallback<T> {
-  return useCallback(
-    (value) => {
-      refs.forEach((ref) => {
-        if (!ref || !value) return;
-        ref.current = value;
-      });
-    },
-    refs.filter((r) => !!r)
-  ) as React.RefCallback<T>;
+  return useCallback((value) => {
+    refs.forEach((ref) => {
+      if (!ref || !value) return;
+      ref.current = value;
+    });
+  }, refs) as React.RefCallback<T>;
 }
 const nodeToUrl = async (node: HTMLElement) => {
   const svgStr = new XMLSerializer().serializeToString(node);
