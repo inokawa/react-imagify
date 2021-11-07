@@ -148,7 +148,9 @@ const Component = forwardRef<HTMLCanvasElement, ImagifyProps>(
         width={width}
         height={height}
         style={style}
-      />
+      >
+        {children}
+      </canvas>
     );
   }
 );
