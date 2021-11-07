@@ -67,7 +67,8 @@ const Component = forwardRef<HTMLCanvasElement, ImagifyProps>(
     },
     ref
   ) => {
-    const svgRef = useRef(document.createElement("div"));
+    const svgRef = useRef<HTMLDivElement>(null!);
+    !svgRef.current && (svgRef.current = document.createElement("div"));
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     const dpr = window.devicePixelRatio ?? 1;
