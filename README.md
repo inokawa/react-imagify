@@ -22,12 +22,12 @@ npm install react-imagify
 
 ### Requirements
 
-- react >= 16.8
+- react >= 16.14
 
 ## Usage
 
 ```jsx
-import React, { useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { Imagify } from "react-imagify";
 
 export const Component = () => {
