@@ -15,6 +15,7 @@ const genImage = (url: string, width: number, height: number) => {
     img.onload = (_) => {
       resolve(img);
     };
+    img.onerror = reject;
     img.src = url;
   });
 };
@@ -61,6 +62,7 @@ export const generateImageFromDOM = async (
             img.src = reader.result as string;
             resolve(reader.result as string);
           };
+          reader.onerror = reject;
           reader.readAsDataURL(xhr.response);
         };
         xhr.open("GET", img.src);
