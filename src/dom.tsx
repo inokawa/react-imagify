@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { render } from "react-dom";
 
 const INLINE_BASE64 = /^data:image\/.*;base64,/i;
