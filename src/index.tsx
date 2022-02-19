@@ -9,8 +9,9 @@ import {
 } from "react";
 import { generateImageFromDOM } from "./dom";
 
-export type ImagifyProps = JSX.IntrinsicElements["canvas"] & {
+export type ImagifyProps = Omit<JSX.IntrinsicElements["canvas"], "children"> & {
   type?: "canvas"; // | "svg";
+  children: React.ReactElement;
 };
 
 function mergeRefs<T extends any>(
