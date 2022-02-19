@@ -2,12 +2,11 @@ import {
   memo,
   useMemo,
   useCallback,
-  useEffect,
   useLayoutEffect,
   useRef,
   forwardRef,
 } from "react";
-import { generateImageFromDOM } from "./dom";
+import { generateImageFromDOM, Mounter } from "./dom";
 
 export type ImagifyProps = Omit<JSX.IntrinsicElements["canvas"], "children"> & {
   type?: "canvas"; // | "svg";
@@ -37,8 +36,6 @@ const Component = forwardRef<HTMLCanvasElement, ImagifyProps>(
     },
     ref
   ) => {
-    const svgRef = useRef<HTMLDivElement>(null!);
-    !svgRef.current && (svgRef.current = document.createElement("div"));
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     const dpr = devicePixelRatio ?? 1;
@@ -60,21 +57,21 @@ const Component = forwardRef<HTMLCanvasElement, ImagifyProps>(
       ctx.scale(dpr, dpr);
     }, []);
 
-    useEffect(() => {
-      (async () => {
-        const img = await generateImageFromDOM(
-          children,
-          widthProp,
-          heightProp,
-          svgRef.current
-        );
-
+    const update = useCallback(
+      async (
+        el: HTMLDivElement,
+        w: string | number | undefined,
+        h: string | number | undefined
+      ) => {
         const ctx = canvasRef.current?.getContext("2d");
         if (!ctx) return;
+
+        const img = await generateImageFromDOM(el, w, h);
         ctx.clearRect(0, 0, width, height);
-        ctx?.drawImage(img, 0, 0);
-      })();
-    }, [children, widthProp, heightProp]);
+        ctx.drawImage(img, 0, 0);
+      },
+      [width, height]
+    );
 
     return (
       <canvas
@@ -85,6 +82,9 @@ const Component = forwardRef<HTMLCanvasElement, ImagifyProps>(
         style={style}
       >
         {children}
+        <Mounter width={widthProp} height={heightProp} update={update}>
+          {children}
+        </Mounter>
       </canvas>
     );
   }

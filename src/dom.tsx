@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { render } from "react-dom";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 const INLINE_BASE64 = /^data:image\/.*;base64,/i;
 const isInlineBase64Image = (src: string): boolean => INLINE_BASE64.test(src);
@@ -20,37 +20,42 @@ const genImage = (url: string, width: number, height: number) => {
   });
 };
 
-const Mounter = ({
+export const Mounter = ({
+  width,
+  height,
   children,
-  resolve,
+  update,
 }: {
+  width: string | number | undefined;
+  height: string | number | undefined;
   children: React.ReactElement;
-  resolve: () => void;
+  update: (
+    el: HTMLDivElement,
+    width: string | number | undefined,
+    height: string | number | undefined
+  ) => void;
 }) => {
+  const el = useState(() => document.createElement("div"))[0];
+
   useEffect(() => {
-    resolve();
-  }, [children]);
-  return children;
+    update(el, width, height);
+  }, [children, width, height]);
+
+  return createPortal(
+    <svg width={width} height={height}>
+      <foreignObject width={width} height={height}>
+        {children}
+      </foreignObject>
+    </svg>,
+    el
+  );
 };
 
 export const generateImageFromDOM = async (
-  children: React.ReactNode,
+  el: HTMLDivElement,
   width: string | number | undefined,
-  height: string | number | undefined,
-  el: HTMLDivElement
+  height: string | number | undefined
 ): Promise<HTMLImageElement> => {
-  await new Promise<void>((resolve) => {
-    render(
-      <Mounter resolve={resolve}>
-        <svg width={width} height={height}>
-          <foreignObject width={width} height={height}>
-            {children}
-          </foreignObject>
-        </svg>
-      </Mounter>,
-      el
-    );
-  });
   await Promise.all(
     Array.from(el.querySelectorAll("img")).map(async (img) => {
       if (isInlineBase64Image(img.src)) return img;
