@@ -6,7 +6,8 @@ import {
   useRef,
   forwardRef,
 } from "react";
-import { generateImageFromDOM, Mounter } from "./dom";
+import { generateImageFromDOM } from "./dom";
+import { Mounter } from "./mouter";
 
 export type ImagifyProps = Omit<JSX.IntrinsicElements["canvas"], "children"> & {
   type?: "canvas"; // | "svg";
@@ -38,7 +39,7 @@ const Component = forwardRef<HTMLCanvasElement, ImagifyProps>(
   ) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
-    const dpr = devicePixelRatio ?? 1;
+    const dpr = window.devicePixelRatio ?? 1;
     const width = Number(widthProp ?? 0) * dpr;
     const height = Number(heightProp ?? 0) * dpr;
 

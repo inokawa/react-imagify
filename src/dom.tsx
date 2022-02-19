@@ -1,6 +1,3 @@
-import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
-
 const INLINE_BASE64 = /^data:image\/.*;base64,/i;
 const isInlineBase64Image = (src: string): boolean => INLINE_BASE64.test(src);
 
@@ -20,35 +17,22 @@ const genImage = (url: string, width: number, height: number) => {
   });
 };
 
-export const Mounter = ({
-  width,
-  height,
-  children,
-  update,
-}: {
-  width: string | number | undefined;
-  height: string | number | undefined;
-  children: React.ReactElement;
-  update: (
-    el: HTMLDivElement,
-    width: string | number | undefined,
-    height: string | number | undefined
-  ) => void;
-}) => {
-  const el = useState(() => document.createElement("div"))[0];
-
-  useEffect(() => {
-    update(el, width, height);
-  }, [children, width, height]);
-
-  return createPortal(
-    <svg width={width} height={height}>
-      <foreignObject width={width} height={height}>
-        {children}
-      </foreignObject>
-    </svg>,
-    el
-  );
+const imgToDataURL = (img: HTMLImageElement): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.onload = () => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        img.src = reader.result as string;
+        resolve();
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(xhr.response);
+    };
+    xhr.open("GET", img.src);
+    xhr.responseType = "blob";
+    xhr.send();
+  });
 };
 
 export const generateImageFromDOM = async (
@@ -58,22 +42,8 @@ export const generateImageFromDOM = async (
 ): Promise<HTMLImageElement> => {
   await Promise.all(
     Array.from(el.querySelectorAll("img")).map(async (img) => {
-      if (isInlineBase64Image(img.src)) return img;
-      return new Promise<string>((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.onload = () => {
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            img.src = reader.result as string;
-            resolve(reader.result as string);
-          };
-          reader.onerror = reject;
-          reader.readAsDataURL(xhr.response);
-        };
-        xhr.open("GET", img.src);
-        xhr.responseType = "blob";
-        xhr.send();
-      });
+      if (isInlineBase64Image(img.src)) return;
+      await imgToDataURL(img);
     })
   );
 
