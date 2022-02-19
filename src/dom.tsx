@@ -24,13 +24,13 @@ const Mounter = ({
   children,
   resolve,
 }: {
-  children: React.ReactNode;
+  children: React.ReactElement;
   resolve: () => void;
 }) => {
   useEffect(() => {
     resolve();
   }, [children]);
-  return <>{children}</>;
+  return children;
 };
 
 export const generateImageFromDOM = async (
