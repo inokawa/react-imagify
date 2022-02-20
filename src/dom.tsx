@@ -17,21 +17,28 @@ const genImage = (url: string, width: number, height: number) => {
   });
 };
 
-const imgToDataURL = (img: HTMLImageElement): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.onload = () => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        img.src = reader.result as string;
-        resolve();
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(xhr.response);
+const waitForImageLoad = (img: HTMLImageElement) => {
+  return new Promise<void>((resolve, reject) => {
+    if (img.complete) resolve();
+    img.onload = (_) => {
+      resolve();
     };
-    xhr.open("GET", img.src);
-    xhr.responseType = "blob";
-    xhr.send();
+    img.onerror = reject;
+  });
+};
+
+const imgToDataURL = (img: HTMLImageElement): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return reject();
+
+    canvas.width = img.width;
+    canvas.height = img.height;
+    ctx.drawImage(img, 0, 0);
+    resolve(canvas.toDataURL("image/png"));
+
+    canvas.remove();
   });
 };
 
@@ -43,7 +50,8 @@ export const generateImageFromDOM = async (
   await Promise.all(
     Array.from(el.querySelectorAll("img")).map(async (img) => {
       if (isInlineBase64Image(img.src)) return;
-      await imgToDataURL(img);
+      await waitForImageLoad(img);
+      img.src = await imgToDataURL(img);
     })
   );
 
