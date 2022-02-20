@@ -10,25 +10,23 @@ import { generateImageFromDOM } from "./dom";
 import { Mounter } from "./mouter";
 
 export type ImagifyProps = Omit<JSX.IntrinsicElements["canvas"], "children"> & {
-  type?: "canvas"; // | "svg";
   children: React.ReactElement;
 };
 
-function mergeRefs<T extends any>(
+const mergeRefs = <T extends any>(
   ...refs: React.MutableRefObject<T>[]
-): React.RefCallback<T> {
+): React.RefCallback<T> => {
   return useCallback((value) => {
     refs.forEach((ref) => {
       if (!ref || !value) return;
       ref.current = value;
     });
   }, refs);
-}
+};
 
 const Component = forwardRef<HTMLCanvasElement, ImagifyProps>(
   (
     {
-      type = "canvas",
       width: widthProp,
       height: heightProp,
       style: styleProp,
@@ -40,14 +38,16 @@ const Component = forwardRef<HTMLCanvasElement, ImagifyProps>(
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     const dpr = window.devicePixelRatio ?? 1;
-    const width = Number(widthProp ?? 0) * dpr;
-    const height = Number(heightProp ?? 0) * dpr;
+    const width = Number(widthProp ?? 0);
+    const height = Number(heightProp ?? 0);
+    const canvasWidth = width * dpr;
+    const canvasHeight = height * dpr;
 
     const style = useMemo<React.CSSProperties>(
       () => ({
         ...styleProp,
-        width: String(width / dpr) + "px",
-        height: String(height / dpr) + "px",
+        width: String(width) + "px",
+        height: String(height) + "px",
       }),
       [styleProp, width, height]
     );
@@ -68,18 +68,18 @@ const Component = forwardRef<HTMLCanvasElement, ImagifyProps>(
         if (!ctx) return;
 
         const img = await generateImageFromDOM(el, w, h);
-        ctx.clearRect(0, 0, width, height);
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
         ctx.drawImage(img, 0, 0);
       },
-      [width, height]
+      [canvasWidth, canvasHeight]
     );
 
     return (
       <canvas
         {...props}
         ref={mergeRefs(ref as React.RefObject<HTMLCanvasElement>, canvasRef)}
-        width={width}
-        height={height}
+        width={canvasWidth}
+        height={canvasHeight}
         style={style}
       >
         {children}

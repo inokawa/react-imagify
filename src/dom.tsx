@@ -1,13 +1,17 @@
 const INLINE_BASE64 = /^data:image\/.*;base64,/i;
 const isInlineBase64Image = (src: string): boolean => INLINE_BASE64.test(src);
 
-const nodeToUrl = async (node: HTMLElement) => {
+const nodeToUrl = (node: HTMLElement): string => {
   const svgStr = new XMLSerializer().serializeToString(node);
   return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgStr);
 };
 
-const genImage = (url: string, width: number, height: number) => {
-  return new Promise<HTMLImageElement>((resolve, reject) => {
+const genImage = (
+  url: string,
+  width: number,
+  height: number
+): Promise<HTMLImageElement> => {
+  return new Promise((resolve, reject) => {
     const img = new Image(width, height);
     img.onload = (_) => {
       resolve(img);
@@ -17,8 +21,8 @@ const genImage = (url: string, width: number, height: number) => {
   });
 };
 
-const waitForImageLoad = (img: HTMLImageElement) => {
-  return new Promise<void>((resolve, reject) => {
+const waitForImageLoad = (img: HTMLImageElement): Promise<void> => {
+  return new Promise((resolve, reject) => {
     if (img.complete) resolve();
     img.onload = (_) => {
       resolve();
@@ -55,7 +59,7 @@ export const generateImageFromDOM = async (
     })
   );
 
-  const svgUrl = await nodeToUrl(el.children[0] as HTMLElement);
+  const svgUrl = nodeToUrl(el.children[0] as HTMLElement);
   const img = await genImage(svgUrl, Number(width), Number(height));
   return img;
 };
