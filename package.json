@@ -1,6 +1,6 @@
 {
   "name": "react-imagify",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "A small React component to render HTML as Canvas.",
   "main": "lib/index.js",
   "module": "lib/index.mjs",
