@@ -47,7 +47,7 @@ const imgToDataURL = (img: HTMLImageElement): Promise<string> => {
 };
 
 export const generateImageFromDOM = async (
-  el: HTMLDivElement,
+  el: DocumentFragment,
   width: string | number | undefined,
   height: string | number | undefined
 ): Promise<HTMLImageElement> => {

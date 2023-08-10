@@ -60,7 +60,7 @@ const Component = forwardRef<HTMLCanvasElement, ImagifyProps>(
 
     const update = useCallback(
       async (
-        el: HTMLDivElement,
+        el: DocumentFragment,
         w: string | number | undefined,
         h: string | number | undefined
       ) => {
