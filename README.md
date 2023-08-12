@@ -1,6 +1,6 @@
 # react-imagify
 
-![npm](https://img.shields.io/npm/v/react-imagify) [![check](https://github.com/inokawa/react-imagify/actions/workflows/check.yml/badge.svg)](https://github.com/inokawa/react-imagify/actions/workflows/check.yml) [![demo](https://github.com/inokawa/react-imagify/actions/workflows/demo.yml/badge.svg)](https://github.com/inokawa/react-imagify/actions/workflows/demo.yml)
+![npm](https://img.shields.io/npm/v/react-imagify) ![npm bundle size](https://img.shields.io/bundlephobia/minzip/react-imagify) [![check](https://github.com/inokawa/react-imagify/actions/workflows/check.yml/badge.svg)](https://github.com/inokawa/react-imagify/actions/workflows/check.yml) [![demo](https://github.com/inokawa/react-imagify/actions/workflows/demo.yml/badge.svg)](https://github.com/inokawa/react-imagify/actions/workflows/demo.yml)
 
 A small [React](https://github.com/facebook/react) component to render HTML as Canvas.
 
